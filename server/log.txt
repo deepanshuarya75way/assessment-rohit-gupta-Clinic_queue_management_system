@@ -1,0 +1,31 @@
+﻿
+> cqms-server@1.0.0 dev
+> ts-node-dev --respawn --transpile-only src/index.ts
+
+[INFO] 21:22:28 ts-node-dev ver. 2.0.0 (using ts-node ver. 10.9.2, typescript ver. 5.9.3)
+[DB] Connected to PostgreSQL
+[Server] Running on port 5000
+[Socket] public connected (2)
+node.exe : EntityPropertyNotFoundError: Property "departmentId" was not found in "Doctor". Make sure your query is 
+correct.
+At C:\Program Files\nodejs\npm.ps1:29 char:3
++   & $NODE_EXE $NPM_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (EntityPropertyN...ery is correct.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+    at C:\Users\BIT\Desktop\queue_management\server\src\query-builder\SelectQueryBuilder.ts:3935:23
+    at Array.forEach (<anonymous>)
+    at SelectQueryBuilder.buildRelations 
+(C:\Users\BIT\Desktop\queue_management\server\src\query-builder\SelectQueryBuilder.ts:3927:32)
+    at SelectQueryBuilder.applyFindOptions 
+(C:\Users\BIT\Desktop\queue_management\server\src\query-builder\SelectQueryBuilder.ts:3126:22)
+    at SelectQueryBuilder.setFindOptions 
+(C:\Users\BIT\Desktop\queue_management\server\src\query-builder\SelectQueryBuilder.ts:106:14)
+    at EntityManager.find (C:\Users\BIT\Desktop\queue_management\server\src\entity-manager\EntityManager.ts:1159:14)
+    at Repository.find (C:\Users\BIT\Desktop\queue_management\server\src\repository\Repository.ts:581:29)
+    at list (C:\Users\BIT\Desktop\queue_management\server\src\controllers\doctorController.ts:9:32)
+    at Layer.handle [as handle_request] 
+(C:\Users\BIT\Desktop\queue_management\server\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\BIT\Desktop\queue_management\server\node_modules\express\lib\router\route.js:149:13)
+[ERROR] 21:23:44 EntityPropertyNotFoundError: Property "departmentId" was not found in "Doctor". Make sure your query is correct.
