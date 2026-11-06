@@ -16,9 +16,17 @@ export default function PatientBookAppointment() {
 
   const { data: doctors } = useQuery({ queryKey: ['doctors'], queryFn: listDoctors });
 
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const minDate = tomorrow.toISOString().split('T')[0];
+  // const tomorrow = new Date();
+  // tomorrow.setDate(tomorrow.getDate() + 1);
+  // const minDate = tomorrow.toISOString().split('T')[0];
+
+  const today = new Date();
+
+  const minDate = [
+    today.getFullYear(),
+    String(today.getMonth() + 1).padStart(2,'0'),
+    String(today.getDate()).padStart(2,'0'),
+  ].join('-');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
