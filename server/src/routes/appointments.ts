@@ -8,5 +8,9 @@ router.use(authenticate as any);
 router.get('/', appointmentController.list as any);
 router.post('/', authorize('admin', 'receptionist') as any, appointmentController.create as any);
 router.patch('/:id', authorize('admin', 'receptionist') as any, appointmentController.updateStatus as any);
+router.post('/:id/remainder',
+  authorize('admin','receptionist') as any,
+  appointmentController.sendReminder as any
+);
 
 export default router;

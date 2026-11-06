@@ -78,7 +78,10 @@ export async function sendYourTurnAlert(phone: string, tokenNumber: string): Pro
   await sendWhatsApp(phone, msg);
 }
 
-export async function sendAppointmentReminder(phone: string, doctorName: string, date: string, time: string): Promise<void> {
+export async function sendAppointmentReminder(phone: string, doctorName: string, date: string, time: string): Promise<boolean> {
   const msg = `Reminder: You have an appointment with Dr. ${doctorName} on ${date} at ${time}. Please arrive 10 minutes early.`;
-  await sendWhatsApp(phone, msg);
+
+   return await sendWhatsApp(phone, msg);
 }
+
+

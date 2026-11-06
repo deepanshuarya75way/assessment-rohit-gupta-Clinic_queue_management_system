@@ -5,6 +5,9 @@ import { Queue } from '../entities/Queue';
 import { AuthRequest } from '../types';
 import * as queueEngine from '../services/queueEngine';
 import { emitQueueUpdate } from '../socket';
+import { sendAppointmentReminder }  from '../services/notificationService';
+import { resolve } from 'path';
+
 
 const repo = () => AppDataSource.getRepository(Appointment);
 
@@ -71,4 +74,100 @@ export async function updateStatus(req: AuthRequest, res: Response): Promise<voi
   }
 
   res.json(appointment);
+}
+
+
+// checking appointment before sending
+export async function sendReminder(
+  req: AuthRequest,
+  res: Response
+):Promise<void>{
+  const id = Number(req.params.id);
+
+  if(!Number.isInteger(id) || id <= 0){
+    res.status(400).json({error:'Invalid appointment ID'});
+    return;
+  }
+
+  try {
+    const result = await
+    AppDataSource.transaction(async (manager) =>{
+      const appointment = await manager.findOne(Appointment,{
+        where: {id},
+        relations: ['patient', 'doctor'],
+        lock: {mode: 'pessimistic_write'},
+      });
+
+      if(!appointment){
+        return {status: 404, body: {error: 'Appointment not found'}};
+      }
+      //active booked appointments are allowed
+      if(appointment.status !== 'booked'){
+        return{
+          status: 400,
+          body: {error: 'Only booked appointments can receive remainders'},
+        };
+      }
+      // preventing douplicate remainders
+      if(appointment.reminderSentAt){
+        return{
+          status:409,
+          body: {error : 'Remainder has already been sent'},
+
+        };
+      }
+      const appointmentDateTime = new Date(
+        `${appointment.appointmentDate}T$
+        {appointment.appointmentTime}`
+      );
+
+      if(
+        Number.isNaN(appointmentDateTime.getTime()) || appointmentDateTime <= new Date()
+      ){
+        return {
+          status: 400,
+          body: {error: 'Appontment must be in future'},
+        };
+      }
+      if(!appointment.patient?. phoneNumber || !appointment.doctor?.fullName){
+        return {
+          status: 400,
+          body: {error: 'patient phone or doctor details are missing'},
+        };
+      }
+      const sent = await sendAppointmentReminder(
+        appointment.patient.phoneNumber,
+        appointment.doctor.fullName,
+        appointment.appointmentDate,
+        appointment.appointmentTime
+      );
+
+      if(!sent){
+        return {
+          status: 200,
+          body: {
+            success : false,
+            message: 'remainder was not sent'
+          },
+        };
+      }
+      appointment.reminderSentAt = new Date();
+      await manager.save(Appointment,appointment);
+      return {
+          status: 200,
+          body: {
+            success : true,
+            message: 'appointment remainder sent',
+            appointmentId: appointment.id,
+            reminderSentAt: 
+            appointment.reminderSentAt,
+          },
+        };
+
+    });
+    res.status(result.status).json(result.body);
+  } catch(error){
+    console.error('[Appointment] Remainder failed', error);
+    res.status(500).json({error: 'Failed to send remainder'});
+  }
 }
